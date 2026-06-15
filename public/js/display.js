@@ -1,43 +1,43 @@
 const socket = io();
 
-// ── AUDIO CONTEXT PERSISTENTE ───────────────────────────────
-// Se crea una sola vez y se reutiliza en cada llamado
+// ── AUDIO ────────────────────────────────────────────────────
 let audioCtx = null;
 
 function getAudioCtx() {
   if (!audioCtx) {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   }
-  // Si el navegador lo suspendió, lo reanudamos
-  if (audioCtx.state === 'suspended') {
-    audioCtx.resume();
-  }
   return audioCtx;
 }
 
-// Activar el contexto con el primer click del usuario
-document.addEventListener('click', () => getAudioCtx(), { once: true });
-
 function playCallSound() {
-  const ctx   = getAudioCtx();
-  const notes = [523.25, 659.25, 783.99, 1046.5]; // Do-Mi-Sol-Do
+  const ctx = getAudioCtx();
 
-  notes.forEach((freq, i) => {
-    const osc  = ctx.createOscillator();
-    const gain = ctx.createGain();
+  const resume = ctx.state === 'suspended' ? ctx.resume() : Promise.resolve();
 
-    osc.connect(gain);
-    gain.connect(ctx.destination);
+  resume.then(() => {
+    const notes    = [523, 659, 784, 1047];
+    const duration = 0.25;
+    const gap      = 0.22;
 
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.2);
+    notes.forEach((freq, i) => {
+      const t    = ctx.currentTime + i * gap;
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
 
-    gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.2);
-    gain.gain.linearRampToValueAtTime(0.5, ctx.currentTime + i * 0.2 + 0.05);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.2 + 0.35);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
 
-    osc.start(ctx.currentTime + i * 0.2);
-    osc.stop(ctx.currentTime + i * 0.2 + 0.4);
+      osc.type            = 'sine';
+      osc.frequency.value = freq;
+
+      gain.gain.setValueAtTime(0.6, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
+
+      osc.start(t);
+      osc.stop(t + duration + 0.05);
+      osc.onended = () => { osc.disconnect(); gain.disconnect(); };
+    });
   });
 }
 
@@ -85,7 +85,6 @@ socket.on('state-update', (data) => {
     cd.style.display = 'none';
   }
 
-  // Cola (máx 3)
   const ql   = document.getElementById('queueList');
   const show = data.queue.slice(0, 3);
   ql.innerHTML = show.length === 0
@@ -99,7 +98,6 @@ socket.on('state-update', (data) => {
           </div>
         </div>`).join('');
 
-  // Stats
   const today = new Date().toISOString().split('T')[0];
   document.getElementById('todayCount').textContent   = data.dailyStats[today] || 0;
   document.getElementById('queueCount').textContent   = data.queue.length;
@@ -112,9 +110,8 @@ socket.on('state-update', (data) => {
 socket.on('ticket-called', () => {
   playCallSound();
   flash();
-
   const td = document.getElementById('ticketDisplay');
   td.classList.remove('animate');
-  void td.offsetWidth; // forzar reflow
+  void td.offsetWidth;
   td.classList.add('animate');
 });

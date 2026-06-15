@@ -7,40 +7,15 @@
   <link rel="stylesheet" href="css/display.css"/>
   <style>
     .logo-img { height: 48px; width: auto; }
-    #soundBtn {
-      position: fixed;
-      bottom: 20px; right: 20px;
-      background: linear-gradient(135deg, #1565c0, #0d47a1);
-      color: #fff;
-      border: none;
-      border-radius: 12px;
-      padding: 10px 18px;
-      font-size: 0.9rem;
-      font-family: 'Rajdhani', sans-serif;
-      font-weight: 700;
-      cursor: pointer;
-      z-index: 1000;
-      box-shadow: 0 4px 16px rgba(21,101,192,0.5);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.2s;
-    }
-    #soundBtn:hover { transform: scale(1.05); }
-    #soundBtn.active {
-      background: linear-gradient(135deg, #2e7d32, #1b5e20);
-      box-shadow: 0 4px 16px rgba(46,125,50,0.5);
-    }
   </style>
 </head>
 <body>
 
 <div class="flash-overlay" id="flashOverlay"></div>
-<button id="soundBtn" onclick="activateSound()">🔇 Activar sonido</button>
 
 <header>
   <div class="logo">
-    <img class="logo-img" src="FarmaPlus_logo.svg" alt="FarmaPlus" />
+    <img class="logo-img" src="FarmaPlus_logo.svg" alt="FarmaPlus"/>
   </div>
   <div id="clock">--:--:--</div>
 </header>
@@ -68,23 +43,5 @@
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="js/display.js"></script>
-<script>
-  function activateSound() {
-    initAudio();
-    if (audioCtx) {
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
-      osc.start();
-      osc.stop(audioCtx.currentTime + 0.1);
-    }
-    const btn = document.getElementById('soundBtn');
-    btn.textContent = '🔊 Sonido activo';
-    btn.classList.add('active');
-    btn.disabled = true;
-  }
-</script>
 </body>
 </html>
