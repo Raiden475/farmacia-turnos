@@ -9,23 +9,17 @@ const io     = new Server(server);
 
 app.use(express.static(path.join(__dirname, "public")));
 
-// ─────────────────────────────────────────
-//  ESTADO GLOBAL
-// ─────────────────────────────────────────
 let state = {
   counter:       0,
   queue:         [],
   currentTicket: null,
   history:       [],
   dailyStats:    {},
-  chatMessages:  [],   // historial general (últimos 100)
+  chatMessages:  [],
 };
 
-// socketId → nombre de usuario
-const connectedUsers = new Map();
-
-// nombre → socketId  (para mensajes privados)
-const userSockets = new Map();
+const connectedUsers = new Map(); // socketId → nombre
+const userSockets    = new Map(); // nombre   → socketId
 
 const PREFIXES = ["A", "B", "C"];
 function getTodayKey() { return new Date().toISOString().split("T")[0]; }
@@ -39,23 +33,16 @@ function broadcastState() {
     dailyStats:    state.dailyStats,
   });
 }
-
 function broadcastUsers() {
-  const users = [...connectedUsers.values()];
-  io.emit("users-update", users);
+  io.emit("users-update", [...connectedUsers.values()]);
 }
 
-// ─────────────────────────────────────────
-//  CONEXIÓN
-// ─────────────────────────────────────────
 io.on("connection", (socket) => {
   console.log(`[+] Conectado: ${socket.id}`);
 
   socket.emit("state-update", {
-    queue:         state.queue,
-    currentTicket: state.currentTicket,
-    history:       state.history.slice(-3).reverse(),
-    dailyStats:    state.dailyStats,
+    queue: state.queue, currentTicket: state.currentTicket,
+    history: state.history.slice(-3).reverse(), dailyStats: state.dailyStats,
   });
   socket.emit("chat-history", state.chatMessages);
 
@@ -101,51 +88,63 @@ io.on("connection", (socket) => {
     if (!data.user) return;
     connectedUsers.set(socket.id, data.user);
     userSockets.set(data.user, socket.id);
-    console.log(`[CHAT] ${data.user} se unió`);
     socket.broadcast.emit("user-connected", { user: data.user });
     broadcastUsers();
+    console.log(`[CHAT] ${data.user} se unió`);
   });
 
   socket.on("chat-message", (data) => {
     const msg = {
-      id:    Date.now(),
-      user:  data.user || "Anónimo",
-      text:  data.text,
-      time:  new Date().toLocaleTimeString("es-AR", { hour:"2-digit", minute:"2-digit" }),
+      id:   Date.now(),
+      user: data.user || "Anónimo",
+      text: data.text,
+      time: new Date().toLocaleTimeString("es-AR", { hour:"2-digit", minute:"2-digit" }),
     };
     state.chatMessages.push(msg);
     if (state.chatMessages.length > 100) state.chatMessages.shift();
     io.emit("chat-message", msg);
   });
 
+  socket.on("typing-start", (data) => { socket.broadcast.emit("typing-start", { user: data.user }); });
+  socket.on("typing-stop",  (data) => { socket.broadcast.emit("typing-stop",  { user: data.user }); });
+
   // ── MENSAJE PRIVADO ───────────────────────
   socket.on("private-message", (data) => {
-    // data = { from, to, text }
+    const msgId = `${Date.now()}-${Math.random().toString(36).slice(2,7)}`;
     const msg = {
+      id:   msgId,
       from: data.from,
       to:   data.to,
       text: data.text,
       time: new Date().toLocaleTimeString("es-AR", { hour:"2-digit", minute:"2-digit" }),
+      status: "sent", // sent → delivered → read
     };
 
-    // Enviar al destinatario
     const toSocketId = userSockets.get(data.to);
-    if (toSocketId) {
-      io.to(toSocketId).emit("private-message", msg);
-    }
 
-    // Confirmar al remitente (para que aparezca en su propia ventana)
-    socket.emit("private-message", msg);
+    if (toSocketId) {
+      // Destinatario conectado → delivered
+      msg.status = "delivered";
+      io.to(toSocketId).emit("private-message", msg);
+      // Confirmar delivered al remitente
+      socket.emit("private-message", { ...msg });
+      socket.emit("msg-status", { id: msgId, status: "delivered" });
+    } else {
+      // Destinatario desconectado → solo sent
+      socket.emit("private-message", { ...msg, status: "sent" });
+    }
 
     console.log(`[PRIVADO] ${data.from} → ${data.to}: ${data.text.substring(0,40)}`);
   });
 
-  // ── TYPING GENERAL ────────────────────────
-  socket.on("typing-start", (data) => {
-    socket.broadcast.emit("typing-start", { user: data.user });
-  });
-  socket.on("typing-stop", (data) => {
-    socket.broadcast.emit("typing-stop", { user: data.user });
+  // ── MARCAR COMO LEÍDO ─────────────────────
+  // El receptor avisa que abrió el chat y leyó los mensajes
+  socket.on("private-read", (data) => {
+    // data = { from: "quien leyó", to: "quien envió los mensajes" }
+    const senderSocketId = userSockets.get(data.to);
+    if (senderSocketId) {
+      io.to(senderSocketId).emit("msg-read", { from: data.from });
+    }
   });
 
   // ── TYPING PRIVADO ────────────────────────
@@ -172,7 +171,6 @@ io.on("connection", (socket) => {
   });
 });
 
-// ─────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`\n✅  Servidor en http://localhost:${PORT}`);

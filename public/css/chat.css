@@ -124,3 +124,28 @@ body { background:#0d1117; color:#e0e0e0; font-family:'Inter',sans-serif; height
 .send-btn:hover { transform:scale(1.07); }
 .send-btn:active { transform:scale(0.95); }
 .conv-panel.private .send-btn { background:linear-gradient(135deg,#6a1b9a,#4a148c); }
+
+/* ── TICKS DE ESTADO ── */
+.msg-status {
+  font-size: 0.65rem;
+  margin-top: 3px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  transition: all 0.3s ease;
+}
+.msg-group.mine .msg-status {
+  justify-content: flex-end;
+  color: #546e7a;
+}
+.tick { font-size: 0.75rem; letter-spacing: -2px; }
+.tick.sent      { color: #546e7a; }
+.tick.delivered { color: #90a4ae; }
+.tick.read      { color: #42a5f5; }
+
+.status-label {
+  font-size: 0.62rem;
+  color: #37474f;
+  margin-left: 2px;
+}
+.tick.read + .status-label { color: #42a5f5; }

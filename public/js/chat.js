@@ -3,14 +3,10 @@ let username = '';
 let typingTimer = null;
 let isTyping = false;
 
-// Historial privado: { "nombreUsuario": [msgs] }
 const privateHistory = {};
-// Mensajes no leídos por usuario
-const unreadCounts = {};
-// Tab activa actualmente
+const unreadCounts   = {};
 let activeTab = 'general';
 
-// Paleta de colores para avatares
 const COLORS = ['#1565c0','#6a1b9a','#00695c','#c62828','#558b2f','#e65100','#4527a0','#2e7d32'];
 const userColors = {};
 function colorFor(name) {
@@ -21,6 +17,20 @@ function colorFor(name) {
   return userColors[name];
 }
 function initial(name) { return name.charAt(0).toUpperCase(); }
+
+// ── TICKS DE ESTADO ─────────────────────────────────────────
+// status: sent | delivered | read
+function tickHTML(status) {
+  const labels = { sent: 'Enviado', delivered: 'Entregado', read: 'Leído' };
+  const symbol = status === 'sent' ? '✓' : '✓✓';
+  return `<span class="tick ${status}">${symbol}</span>
+          <span class="status-label">${labels[status]}</span>`;
+}
+
+function updateMsgStatus(msgId, status) {
+  const el = document.getElementById(`status-${msgId}`);
+  if (el) el.innerHTML = tickHTML(status);
+}
 
 // ── LOGIN ────────────────────────────────────────────────────
 document.getElementById('nameInput').addEventListener('keydown', e => {
@@ -48,27 +58,26 @@ function joinChat() {
 // ── TABS ─────────────────────────────────────────────────────
 function openPrivateChat(targetUser) {
   if (targetUser === username) return;
-
-  // Inicializar historial si no existe
   if (!privateHistory[targetUser]) privateHistory[targetUser] = [];
   unreadCounts[targetUser] = 0;
 
-  // Crear tab si no existe
-  if (!document.getElementById(`tab-${CSS.escape(targetUser)}`)) {
+  if (!document.getElementById(`tab-${targetUser}`)) {
     createTab(targetUser);
     createPanel(targetUser);
   }
 
   switchTab(targetUser);
-  updateSidebarUser(targetUser);
+
+  // Avisar al servidor que leímos los mensajes de este usuario
+  socket.emit('private-read', { from: username, to: targetUser });
 }
 
 function createTab(targetUser) {
   const color = colorFor(targetUser);
-  const tab = document.createElement('div');
+  const tab   = document.createElement('div');
   tab.className = 'tab';
   tab.id = `tab-${targetUser}`;
-  tab.onclick = () => switchTab(targetUser);
+  tab.onclick = () => openPrivateChat(targetUser);
   tab.innerHTML = `
     <div class="tab-av" style="background:${color}">${initial(targetUser)}</div>
     <span>${targetUser}</span>
@@ -88,18 +97,18 @@ function createPanel(targetUser) {
         <div class="ct-av" style="background:${color}">${initial(targetUser)}</div>
         <div>
           <h1>${targetUser}</h1>
-          <p>Conversación privada</p>
+          <p id="status-label-${targetUser}">Conversación privada</p>
         </div>
       </div>
       <span class="private-badge">🔒 Privado</span>
     </div>
     <div class="messages" id="msgs-${targetUser}">
-      <div class="sys-msg">Inicio de la conversación privada con ${targetUser}</div>
+      <div class="sys-msg">Inicio de la conversación con ${targetUser}</div>
     </div>
     <div class="typing-bar" id="typing-${targetUser}"></div>
     <div class="input-bar">
       <textarea id="input-${targetUser}"
-        placeholder="Mensaje privado para ${targetUser}... (Enter para enviar)"
+        placeholder="Mensaje privado para ${targetUser}..."
         rows="1"
         oninput="onPrivateInput(this, '${targetUser}')"
         onkeydown="onPrivateKey(event, '${targetUser}')"></textarea>
@@ -107,10 +116,8 @@ function createPanel(targetUser) {
     </div>`;
   document.getElementById('panelsContainer').appendChild(panel);
 
-  // Cargar historial si hay mensajes previos
   privateHistory[targetUser].forEach(m => renderPrivateMsg(m, targetUser));
 
-  // Auto-resize textarea
   const ta = document.getElementById(`input-${targetUser}`);
   ta.addEventListener('input', () => {
     ta.style.height = 'auto';
@@ -120,23 +127,17 @@ function createPanel(targetUser) {
 
 function switchTab(tabId) {
   activeTab = tabId;
-
-  // Marcar tabs
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  const tab = document.getElementById(`tab-${tabId}`);
-  if (tab) tab.classList.add('active');
-
-  // Mostrar panel correcto
+  document.getElementById(`tab-${tabId}`)?.classList.add('active');
   document.querySelectorAll('.conv-panel').forEach(p => p.classList.remove('active'));
-  const panel = document.getElementById(`panel-${tabId}`);
-  if (panel) panel.classList.add('active');
+  document.getElementById(`panel-${tabId}`)?.classList.add('active');
 
-  // Limpiar no leídos
   if (tabId !== 'general' && unreadCounts[tabId] > 0) {
     unreadCounts[tabId] = 0;
     const badge = document.getElementById(`tab-unread-${tabId}`);
     if (badge) badge.style.display = 'none';
-    updateSidebarUser(tabId);
+    // Avisar que se leyeron los mensajes
+    socket.emit('private-read', { from: username, to: tabId });
   }
 
   focusInput(tabId);
@@ -148,7 +149,6 @@ function closePrivateChat(targetUser, event) {
   document.getElementById(`panel-${targetUser}`)?.remove();
   delete privateHistory[targetUser];
   delete unreadCounts[targetUser];
-  updateSidebarUser(targetUser);
   if (activeTab === targetUser) switchTab('general');
 }
 
@@ -208,10 +208,13 @@ function nowTime() {
   return new Date().toLocaleTimeString('es-AR', { hour:'2-digit', minute:'2-digit' });
 }
 function esc(str) {
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/\n/g,'<br>');
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+    .replace(/\n/g,'<br>');
 }
-function scrollBottom(containerId) {
-  const el = document.getElementById(containerId);
+function scrollBottom(id) {
+  const el = document.getElementById(id);
   if (el) setTimeout(() => { el.scrollTop = el.scrollHeight; }, 40);
 }
 
@@ -246,22 +249,34 @@ function renderPrivateMsg(msg, targetUser) {
 
   const group = document.createElement('div');
   group.className = `msg-group ${isMine ? 'mine' : 'theirs'}`;
+  group.id = `msg-group-${msg.id}`;
+
+  // Solo los mensajes propios tienen ticks de estado
+  const statusHTML = isMine
+    ? `<div class="msg-status" id="status-${msg.id}">${tickHTML(msg.status || 'sent')}</div>`
+    : '';
+
   group.innerHTML = `
     <div class="msg-header">
       <div class="msg-av" style="background:${color}">${initial(isMine ? username : otherUser)}</div>
       <span class="sender">${isMine ? 'Vos' : esc(otherUser)}</span>
       <span class="ts">${msg.time || nowTime()}</span>
     </div>
-    <div class="bubble">${esc(msg.text)}</div>`;
+    <div class="bubble">${esc(msg.text)}</div>
+    ${statusHTML}`;
+
   document.getElementById(container)?.appendChild(group);
   scrollBottom(container);
 }
 
 // ── SIDEBAR ──────────────────────────────────────────────────
+let currentUsers = [];
+
 function renderUsers(users) {
-  const list  = document.getElementById('usersList');
-  document.getElementById('userCount').textContent   = `${users.length} conectado${users.length !== 1 ? 's' : ''}`;
-  document.getElementById('onlineCount').textContent = users.length;
+  currentUsers = users;
+  const list = document.getElementById('usersList');
+  document.getElementById('userCount').textContent    = `${users.length} conectado${users.length !== 1 ? 's' : ''}`;
+  document.getElementById('onlineCount').textContent  = users.length;
   document.getElementById('onlineCount2').textContent = users.length;
 
   list.innerHTML = users.map(u => {
@@ -272,7 +287,7 @@ function renderUsers(users) {
     return `
       <div class="user-item ${isMine ? 'me' : ''} ${activeTab === u ? 'active-chat' : ''}"
            onclick="${isMine ? '' : `openPrivateChat('${u}')`}"
-           title="${isMine ? '' : `Iniciar chat privado con ${u}`}">
+           title="${isMine ? 'Sos vos' : `Chat privado con ${u}`}">
         <div class="user-av" style="background:${color}">${initial(u)}</div>
         <div class="user-info">
           <div class="uname">${esc(u)}${isMine ? ' (vos)' : ''}</div>
@@ -285,20 +300,8 @@ function renderUsers(users) {
   }).join('');
 }
 
-function updateSidebarUser(targetUser) {
-  // Re-renderizar solo ese item actualizando badge
-  const users = [...document.querySelectorAll('.user-item')].map(el => {
-    return el.querySelector('.uname')?.textContent.replace(' (vos)', '');
-  }).filter(Boolean);
-  // Forzar re-render completo via users-update del estado local
-  const allUsers = [...document.querySelectorAll('#usersList .user-item')]
-    .map(el => el.querySelector('.uname').textContent.replace(' (vos)', '').trim());
-  renderUsers(allUsers.length > 0 ? allUsers : [username]);
-}
-
-// ── TYPING INDICATORS ────────────────────────────────────────
+// ── TYPING GENERAL ────────────────────────────────────────────
 const typingUsersGeneral = new Set();
-
 function updateGeneralTyping() {
   const bar    = document.getElementById('typing-general');
   const others = [...typingUsersGeneral].filter(u => u !== username);
@@ -315,18 +318,9 @@ socket.on('chat-history', (msgs) => {
 socket.on('chat-message', (msg) => {
   if (msg.isBot) return;
   addGeneralMsg(msg);
-  // Notificar si el tab general no está activo
-  if (activeTab !== 'general' && msg.user !== username) {
-    // parpadeo visual en la pestaña general
-    const tab = document.getElementById('tab-general');
-    tab.style.color = '#ef5350';
-    setTimeout(() => tab.style.color = '', 2000);
-  }
 });
 
-socket.on('users-update', (users) => {
-  renderUsers(users);
-});
+socket.on('users-update', (users) => renderUsers(users));
 
 socket.on('user-connected', (data) => {
   if (data.user !== username) addSysMsg(`${data.user} se unió al chat`);
@@ -336,9 +330,11 @@ socket.on('user-disconnected', (data) => {
   addSysMsg(`${data.user} salió del chat`);
   typingUsersGeneral.delete(data.user);
   updateGeneralTyping();
-  // Avisar en chat privado si existe
   if (privateHistory[data.user] !== undefined) {
     addSysMsg(`${data.user} se desconectó`, `msgs-${data.user}`);
+    // Actualizar label del topbar
+    const lbl = document.getElementById(`status-label-${data.user}`);
+    if (lbl) lbl.textContent = '⚠️ Usuario desconectado';
   }
 });
 
@@ -349,34 +345,61 @@ socket.on('typing-stop', (data) => {
   typingUsersGeneral.delete(data.user); updateGeneralTyping();
 });
 
-// Mensajes privados entrantes
+// ── MENSAJES PRIVADOS ────────────────────────────────────────
 socket.on('private-message', (msg) => {
   const otherUser = msg.from === username ? msg.to : msg.from;
 
-  // Guardar en historial
   if (!privateHistory[otherUser]) privateHistory[otherUser] = [];
   privateHistory[otherUser].push(msg);
 
-  // Si el panel no existe aún, crearlo (mensaje entrante inesperado)
+  // Crear panel si no existe (mensaje entrante inesperado)
   if (!document.getElementById(`panel-${otherUser}`)) {
     createTab(otherUser);
     createPanel(otherUser);
-    // No hacer switchTab automático, solo notificar
+  } else {
+    renderPrivateMsg(msg, otherUser);
   }
 
-  // Renderizar el mensaje
-  renderPrivateMsg(msg, otherUser);
-
-  // Si no estamos viendo ese chat, incrementar badge
+  // Si no estamos mirando ese chat → badge de no leído
   if (activeTab !== otherUser && msg.from !== username) {
     unreadCounts[otherUser] = (unreadCounts[otherUser] || 0) + 1;
     const badge = document.getElementById(`tab-unread-${otherUser}`);
     if (badge) { badge.textContent = unreadCounts[otherUser]; badge.style.display = 'flex'; }
-    renderUsers([...connectedUsers]);
+    renderUsers(currentUsers);
+  }
+
+  // Si estamos mirando el chat → avisar que lo leímos
+  if (activeTab === otherUser && msg.from !== username) {
+    socket.emit('private-read', { from: username, to: msg.from });
   }
 });
 
-// Typing privado
+// ── ACTUALIZACIONES DE ESTADO DEL MENSAJE ────────────────────
+// El servidor confirma que el mensaje fue entregado
+socket.on('msg-status', (data) => {
+  // data = { id, status: 'delivered' }
+  updateMsgStatus(data.id, data.status);
+});
+
+// El receptor abrió el chat → todos los mensajes pasan a "read"
+socket.on('msg-read', (data) => {
+  // data = { from: quien leyó }
+  // Actualizar todos los ticks de esa conversación a "read"
+  const container = document.getElementById(`msgs-${data.from}`);
+  if (!container) return;
+  container.querySelectorAll('.msg-status').forEach(el => {
+    el.innerHTML = tickHTML('read');
+  });
+
+  // Actualizar label del topbar
+  const lbl = document.getElementById(`status-label-${data.from}`);
+  if (lbl) {
+    lbl.textContent = '✓✓ Vio tus mensajes';
+    setTimeout(() => { if(lbl) lbl.textContent = 'Conversación privada'; }, 3000);
+  }
+});
+
+// ── TYPING PRIVADO ────────────────────────────────────────────
 socket.on('private-typing-start', (data) => {
   const bar = document.getElementById(`typing-${data.from}`);
   if (bar) bar.innerHTML =
@@ -386,13 +409,4 @@ socket.on('private-typing-start', (data) => {
 socket.on('private-typing-stop', (data) => {
   const bar = document.getElementById(`typing-${data.from}`);
   if (bar) bar.innerHTML = '';
-});
-
-// Guardar referencia de usuarios para re-render sidebar
-const connectedUsers = new Set();
-const origRenderUsers = renderUsers;
-// Interceptar para guardar estado local
-socket.on('users-update', (users) => {
-  connectedUsers.clear();
-  users.forEach(u => connectedUsers.add(u));
 });
