@@ -1,24 +1,25 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Panel Operador – Farmacia</title>
-  <link rel="stylesheet" href="css/operator.css" />
+  <title>Panel Operador – FarmaPlus</title>
+  <link rel="stylesheet" href="css/operator.css"/>
+  <style>
+    .logo-img { height: 38px; width: auto; }
+  </style>
 </head>
 <body>
 
 <header>
   <div>
-    <h1>💊 FARMACIA CENTRAL — Panel Operador</h1>
+    <img class="logo-img" src="FarmaPlus_logo.svg" alt="FarmaPlus"/>
     <p>Gestión de turnos en tiempo real</p>
   </div>
   <div class="role-badge">🖥️ Operador</div>
 </header>
 
 <div class="container">
-
-  <!-- TURNO ACTUAL -->
   <div class="card">
     <h2>🔔 Turno en atención</h2>
     <div class="current-ticket-display">
@@ -36,44 +37,30 @@
         <option value="Inyectables">Inyectables</option>
       </select>
     </div>
-    <button class="btn btn-primary" onclick="callNext()">
-      ▶ LLAMAR SIGUIENTE TURNO
-    </button>
-    <button class="btn btn-danger" onclick="callNext()">
-      🔄 REPETIR LLAMADO
-    </button>
+    <button class="btn btn-primary" onclick="callNext()">▶ LLAMAR SIGUIENTE TURNO</button>
+    <button class="btn btn-danger"  onclick="callNext()">🔄 REPETIR LLAMADO</button>
   </div>
 
-  <!-- COLA EN ESPERA -->
   <div class="card">
     <h2>📋 Cola de espera</h2>
     <div class="queue-info">
-      <div class="qi-badge">
-        <div class="num" id="queueSize">0</div>
-        <div class="lbl">En espera</div>
-      </div>
-      <div class="qi-badge">
-        <div class="num" id="todayServed">0</div>
-        <div class="lbl">Atendidos hoy</div>
-      </div>
+      <div class="qi-badge"><div class="num" id="queueSize">0</div><div class="lbl">En espera</div></div>
+      <div class="qi-badge"><div class="num" id="todayServed">0</div><div class="lbl">Atendidos hoy</div></div>
     </div>
     <div class="queue-list" id="queueList">
-      <div style="color:#546e7a;text-align:center;padding:20px">Sin turnos en espera</div>
+      <div style="color:#546e7a;text-align:center;padding:20px">Sin turnos</div>
     </div>
   </div>
 
-  <!-- ESTADÍSTICAS -->
   <div class="card full-width">
     <h2>📊 Estadísticas por día</h2>
     <div class="stats-day-list" id="statsList">
       <div style="color:#546e7a">Sin datos aún</div>
     </div>
   </div>
-
 </div>
 
 <div id="toast"></div>
-
 <script src="/socket.io/socket.io.js"></script>
 <script src="js/operator.js"></script>
 </body>

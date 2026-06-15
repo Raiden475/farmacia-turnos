@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="90" viewBox="0 0 320 90">
+  <defs>
+    <linearGradient id="pillGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00BFFF"/>
+      <stop offset="100%" stop-color="#00E5A0"/>
+    </linearGradient>
+    <linearGradient id="orbitH" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#00E5FF" stop-opacity="0.05"/>
+      <stop offset="50%"  stop-color="#00E5FF" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#00E5FF" stop-opacity="0.05"/>
+    </linearGradient>
+    <linearGradient id="orbitV" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#39FF14" stop-opacity="0.05"/>
+      <stop offset="50%"  stop-color="#39FF14" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#39FF14" stop-opacity="0.05"/>
+    </linearGradient>
+  </defs>
+
+  <!-- ── ÍCONO ── -->
+  <!-- Anillo horizontal cyan -->
+  <ellipse cx="45" cy="45" rx="38" ry="11" fill="none" stroke="url(#orbitH)" stroke-width="2"/>
+  <!-- Anillo vertical verde -->
+  <ellipse cx="45" cy="45" rx="11" ry="38" fill="none" stroke="url(#orbitV)" stroke-width="2"/>
+  <!-- Anillo diagonal sutil -->
+  <ellipse cx="45" cy="45" rx="39" ry="10" fill="none" stroke="#00E5FF" stroke-width="1" stroke-opacity="0.2" transform="rotate(-35 45 45)"/>
+
+  <!-- Píldora central -->
+  <g transform="translate(45,45) rotate(-40)">
+    <rect x="-7" y="-18" width="14" height="36" rx="7" fill="url(#pillGrad)"/>
+    <line x1="-7" y1="0" x2="7" y2="0" stroke="#ffffff" stroke-width="1.5" stroke-opacity="0.6"/>
+    <rect x="-7" y="-18" width="14" height="18" rx="7" fill="#00CFFF" fill-opacity="0.35"/>
+  </g>
+
+  <!-- Puntos de brillo en los anillos -->
+  <circle cx="83"  cy="38" r="2.5" fill="#00E5FF" opacity="0.9"/>
+  <circle cx="8"   cy="52" r="2"   fill="#00E5FF" opacity="0.6"/>
+  <circle cx="44"  cy="7"  r="2.5" fill="#39FF14" opacity="0.9"/>
+  <circle cx="46"  cy="82" r="2"   fill="#39FF14" opacity="0.6"/>
+
+  <!-- ── TEXTO ── -->
+  <text x="96" y="38" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="900" letter-spacing="-0.5">
+    <tspan fill="#FFFFFF">FARMA</tspan><tspan fill="#39FF14">PLUS</tspan>
+  </text>
+
+  <!-- Subtítulo -->
+  <text x="97" y="54" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#90B8CC" font-weight="400">Sistema Inteligente</text>
+  <text x="97" y="67" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#90B8CC" font-weight="400">de Gestión de Turnos</text>
+
+  <!-- Línea ECG -->
+  <polyline
+    points="97,80 112,80 117,73 122,87 127,73 132,87 137,80 175,80"
+    fill="none"
+    stroke="#00E5FF"
+    stroke-width="1.8"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    opacity="0.75"/>
+</svg>

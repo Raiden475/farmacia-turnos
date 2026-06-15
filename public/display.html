@@ -1,22 +1,46 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Display – Farmacia Turnos</title>
-  <link rel="stylesheet" href="css/display.css" />
+  <title>Display – FarmaPlus</title>
+  <link rel="stylesheet" href="css/display.css"/>
+  <style>
+    .logo-img { height: 48px; width: auto; }
+    #soundBtn {
+      position: fixed;
+      bottom: 20px; right: 20px;
+      background: linear-gradient(135deg, #1565c0, #0d47a1);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 18px;
+      font-size: 0.9rem;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      cursor: pointer;
+      z-index: 1000;
+      box-shadow: 0 4px 16px rgba(21,101,192,0.5);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    #soundBtn:hover { transform: scale(1.05); }
+    #soundBtn.active {
+      background: linear-gradient(135deg, #2e7d32, #1b5e20);
+      box-shadow: 0 4px 16px rgba(46,125,50,0.5);
+    }
+  </style>
 </head>
 <body>
 
 <div class="flash-overlay" id="flashOverlay"></div>
+<button id="soundBtn" onclick="activateSound()">🔇 Activar sonido</button>
 
 <header>
   <div class="logo">
-    <div class="logo-icon">💊</div>
-    <div class="logo-text">
-      <h1>FARMACIA CENTRAL</h1>
-      <p>Sistema de Atención por Turnos</p>
-    </div>
+    <img class="logo-img" src="FarmaPlus_logo.svg" alt="FarmaPlus" />
   </div>
   <div id="clock">--:--:--</div>
 </header>
@@ -25,14 +49,9 @@
   <section class="current-panel">
     <p class="now-label">⚡ Turno en atención</p>
     <div id="ticketDisplay" class="ticket-number">---</div>
-    <div id="counterDisplay" class="counter-label">
-      Aguarde en <span id="counterName">...</span>
-    </div>
-    <div id="idleMsg" class="idle-msg" style="display:none">
-      🔔 Esperando llamado...
-    </div>
+    <div id="counterDisplay" class="counter-label">Aguarde en <span id="counterName">...</span></div>
+    <div id="idleMsg" class="idle-msg" style="display:none">🔔 Esperando llamado...</div>
   </section>
-
   <aside class="queue-panel">
     <div class="queue-header">📋 Cola de espera</div>
     <div class="queue-list" id="queueList">
@@ -42,25 +61,30 @@
 </main>
 
 <footer>
-  <div class="stat-item">
-    <span class="stat-icon">📅</span>
-    <span class="stat-lbl">Atendidos hoy:</span>
-    <span class="stat-val" id="todayCount">0</span>
-  </div>
-  <div class="stat-item">
-    <span class="stat-icon">⏳</span>
-    <span class="stat-lbl">En cola:</span>
-    <span id="queueCount" class="stat-val">0</span>
-    <span class="waiting-badge" id="waitingBadge" style="display:none">EN ESPERA</span>
-  </div>
-  <div class="stat-item">
-    <span class="stat-icon">📊</span>
-    <span class="stat-lbl">Llamados totales:</span>
-    <span class="stat-val" id="historyCount">0</span>
-  </div>
+  <div class="stat-item"><span class="stat-icon">📅</span><span class="stat-lbl">Atendidos hoy:</span><span class="stat-val" id="todayCount">0</span></div>
+  <div class="stat-item"><span class="stat-icon">⏳</span><span class="stat-lbl">En cola:</span><span class="stat-val" id="queueCount">0</span><span class="waiting-badge" id="waitingBadge" style="display:none">EN ESPERA</span></div>
+  <div class="stat-item"><span class="stat-icon">📊</span><span class="stat-lbl">Llamados totales:</span><span class="stat-val" id="historyCount">0</span></div>
 </footer>
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="js/display.js"></script>
+<script>
+  function activateSound() {
+    initAudio();
+    if (audioCtx) {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.1);
+    }
+    const btn = document.getElementById('soundBtn');
+    btn.textContent = '🔊 Sonido activo';
+    btn.classList.add('active');
+    btn.disabled = true;
+  }
+</script>
 </body>
 </html>

@@ -1,67 +1,45 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sacar Turno – Farmacia</title>
-  <link rel="stylesheet" href="css/client.css" />
+  <title>Sacar Turno – FarmaPlus</title>
+  <link rel="stylesheet" href="css/client.css"/>
+  <style>
+    .logo-img { height: 80px; width: auto; margin-bottom: 10px; }
+  </style>
 </head>
 <body>
 
 <div class="logo">
-  <div class="icon">💊</div>
-  <h1>FARMACIA CENTRAL</h1>
+  <img class="logo-img" src="FarmaPlus_logo.svg" alt="FarmaPlus"/>
   <p>Sistema de Atención por Turnos</p>
 </div>
 
 <div class="main-card">
   <h2>🎫 Sacar un turno</h2>
-
-  <button class="btn-take" onclick="takeTicket()">
-    🎟️ OBTENER MI TURNO
-  </button>
+  <button class="btn-take" onclick="takeTicket()">🎟️ OBTENER MI TURNO</button>
 
   <div class="ticket-result" id="ticketResult">
     <div class="tr-label">Su número de turno</div>
     <div class="tr-num" id="myTicketNum">---</div>
     <div class="tr-dashed"></div>
     <div class="tr-info">
-      <div class="tr-info-item">
-        <div class="lbl">Fecha</div>
-        <div class="val" id="myDate">--</div>
-      </div>
-      <div class="tr-info-item">
-        <div class="lbl">Hora</div>
-        <div class="val" id="myTime">--</div>
-      </div>
-      <div class="tr-info-item">
-        <div class="lbl">Posición</div>
-        <div class="val" id="myPos">--</div>
-      </div>
-      <div class="tr-info-item">
-        <div class="lbl">Espera est.</div>
-        <div class="val" id="myWait">--</div>
-      </div>
+      <div class="tr-info-item"><div class="lbl">Fecha</div><div class="val" id="myDate">--</div></div>
+      <div class="tr-info-item"><div class="lbl">Hora</div><div class="val" id="myTime">--</div></div>
+      <div class="tr-info-item"><div class="lbl">Posición</div><div class="val" id="myPos">--</div></div>
+      <div class="tr-info-item"><div class="lbl">Espera est.</div><div class="val" id="myWait">--</div></div>
     </div>
   </div>
 
   <div class="queue-status">
     <h3>📊 ESTADO ACTUAL</h3>
     <div class="now-serving" id="nowServing" style="display:none">
-      <div>
-        <div class="ns-lbl">ATENDIENDO AHORA</div>
-        <div class="ns-num" id="nowNum">---</div>
-      </div>
+      <div><div class="ns-lbl">ATENDIENDO AHORA</div><div class="ns-num" id="nowNum">---</div></div>
       <span>🔔</span>
     </div>
-    <div class="qs-row">
-      <span class="qs-lbl">Turnos en espera</span>
-      <span class="qs-num" id="inQueue">0</span>
-    </div>
-    <div class="qs-row">
-      <span class="qs-lbl">Atendidos hoy</span>
-      <span class="qs-num" id="servedToday">0</span>
-    </div>
+    <div class="qs-row"><span class="qs-lbl">Turnos en espera</span><span class="qs-num" id="inQueue">0</span></div>
+    <div class="qs-row"><span class="qs-lbl">Atendidos hoy</span><span class="qs-num" id="servedToday">0</span></div>
   </div>
 </div>
 
