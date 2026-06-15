@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chat – Farmacia Central</title>
+  <link rel="stylesheet" href="css/chat.css"/>
+</head>
+<body>
+
+<!-- ══ LOGIN ════════════════════════════════════════════════ -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-icon">💬</div>
+    <h1>Chat Farmacia Central</h1>
+    <p>Ingresá tu nombre para unirte.<br>Podés chatear en general o en privado con cualquier usuario.</p>
+    <input id="nameInput" type="text" placeholder="Tu nombre..." maxlength="25" autofocus/>
+    <button class="btn-entrar" onclick="joinChat()">Entrar al chat →</button>
+  </div>
+</div>
+
+<!-- ══ CHAT ══════════════════════════════════════════════════ -->
+<div id="chatScreen">
+  <div class="chat-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2>Participantes</h2>
+        <p id="userCount">0 conectados</p>
+      </div>
+      <div class="users-list" id="usersList"></div>
+      <div class="sidebar-footer">
+        <div class="my-info">
+          <div class="av" id="myAvatar">?</div>
+          <div>
+            <div class="name" id="myName">...</div>
+            <div class="role">Tú</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ÁREA CHAT -->
+    <div class="chat-area">
+
+      <!-- TABS -->
+      <div class="tabs-bar" id="tabsBar">
+        <div class="tab active" id="tab-general" onclick="switchTab('general')">
+          💬 General
+          <div class="count-badge" style="margin-left:6px;padding:2px 8px">
+            <span class="dot"></span>
+            <span id="onlineCount">0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANELES -->
+      <div id="panelsContainer" style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+
+        <!-- Panel General -->
+        <div class="conv-panel active" id="panel-general">
+          <div class="conv-topbar">
+            <div class="ct-left">
+              <div class="ct-av" style="background:#1565c0;font-size:1rem">💬</div>
+              <div>
+                <h1>Chat General — Farmacia Central</h1>
+                <p>Mensajes visibles para todos</p>
+              </div>
+            </div>
+            <div class="count-badge">
+              <span class="dot"></span>
+              <span id="onlineCount2">0</span> en línea
+            </div>
+          </div>
+          <div class="messages" id="msgs-general"></div>
+          <div class="typing-bar" id="typing-general"></div>
+          <div class="input-bar">
+            <textarea id="msgInput" placeholder="Mensaje para todos... (Enter para enviar, Shift+Enter nueva línea)" rows="1"></textarea>
+            <button class="send-btn" onclick="sendGeneral()">➤</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="js/chat.js"></script>
+</body>
+</html>

@@ -1,0 +1,209 @@
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Orbitron:wght@700&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #0f1923;
+  color: #e0e0e0;
+  font-family: 'Rajdhani', sans-serif;
+  min-height: 100vh;
+}
+
+/* ── HEADER ── */
+header {
+  background: linear-gradient(135deg, #1a237e, #283593);
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 3px solid #3949ab;
+}
+header h1 { font-size: 1.4rem; font-weight: 700; }
+header p  { font-size: 0.85rem; color: #9fa8da; }
+.role-badge {
+  background: #3949ab;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #c5cae9;
+}
+
+/* ── LAYOUT ── */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* ── CARD ── */
+.card {
+  background: #141e2b;
+  border: 1px solid #1e3a5f;
+  border-radius: 12px;
+  padding: 22px;
+}
+.card h2 {
+  font-size: 1.1rem;
+  color: #90caf9;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #1e3a5f;
+}
+.full-width { grid-column: 1 / -1; }
+
+/* ── SELECT ── */
+.select-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.select-row label { color: #90caf9; font-size: 0.9rem; white-space: nowrap; }
+select {
+  flex: 1;
+  background: #0d1b2a;
+  border: 1px solid #1565c0;
+  color: #e0e0e0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1rem;
+  cursor: pointer;
+}
+select:focus { outline: none; border-color: #42a5f5; }
+
+/* ── BOTONES ── */
+.btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.btn:active { transform: scale(0.97); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btn-primary {
+  background: linear-gradient(135deg, #1565c0, #0d47a1);
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(21,101,192,0.4);
+}
+.btn-primary:hover { background: linear-gradient(135deg, #1976d2, #1565c0); }
+
+.btn-danger {
+  background: linear-gradient(135deg, #c62828, #b71c1c);
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(198,40,40,0.3);
+}
+.btn-danger:hover { background: linear-gradient(135deg, #d32f2f, #c62828); }
+
+/* ── TURNO ACTUAL ── */
+.current-ticket-display {
+  text-align: center;
+  padding: 20px;
+  background: linear-gradient(135deg, #0d1b2a, #112240);
+  border-radius: 10px;
+  border: 2px solid #1565c0;
+  margin-bottom: 12px;
+}
+.current-ticket-display .lbl  { font-size: 0.85rem; color: #64b5f6; margin-bottom: 4px; }
+.current-ticket-display .num  { font-family: 'Orbitron', monospace; font-size: 3rem; font-weight: 700; color: #42a5f5; }
+.current-ticket-display .dest { font-size: 1rem; color: #ffd54f; margin-top: 4px; }
+
+/* ── COLA INFO ── */
+.queue-info { display: flex; gap: 12px; margin-bottom: 14px; }
+.qi-badge {
+  flex: 1;
+  background: #0d1b2a;
+  border: 1px solid #1e3a5f;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+}
+.qi-badge .num { font-family: 'Orbitron', monospace; font-size: 1.8rem; color: #42a5f5; }
+.qi-badge .lbl { font-size: 0.75rem; color: #546e7a; }
+
+/* ── LISTA COLA ── */
+.queue-list {
+  max-height: 220px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.queue-list::-webkit-scrollbar { width: 4px; }
+.queue-list::-webkit-scrollbar-track { background: #0d1b2a; }
+.queue-list::-webkit-scrollbar-thumb { background: #1565c0; border-radius: 2px; }
+
+.qi-row {
+  background: #0d1b2a;
+  border: 1px solid #1e3a5f;
+  border-radius: 6px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.95rem;
+}
+.qi-row .ticket-id { font-family: 'Orbitron', monospace; font-size: 1rem; color: #42a5f5; }
+.call-btn {
+  background: #1565c0;
+  border: none;
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.85rem;
+  transition: background 0.2s;
+}
+.call-btn:hover { background: #1976d2; }
+
+/* ── STATS ── */
+.stats-day-list { margin-top: 10px; }
+.stats-day-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid #1e3a5f;
+  font-size: 0.9rem;
+}
+.stats-day-row:last-child { border-bottom: none; }
+.stats-day-row .day { color: #90caf9; }
+.stats-day-row .cnt { font-family: 'Orbitron', monospace; color: #42a5f5; }
+
+/* ── TOAST ── */
+#toast {
+  position: fixed;
+  bottom: 24px; right: 24px;
+  background: #1b5e20;
+  color: #fff;
+  padding: 12px 22px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s ease;
+  pointer-events: none;
+  z-index: 999;
+}
+#toast.show  { opacity: 1; transform: translateY(0); }
+#toast.error { background: #b71c1c; }

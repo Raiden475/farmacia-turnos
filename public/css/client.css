@@ -1,0 +1,146 @@
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Orbitron:wght@700;900&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: radial-gradient(ellipse at top, #0d1b2a 0%, #050a12 100%);
+  color: #e0e0e0;
+  font-family: 'Rajdhani', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* ── LOGO ── */
+.logo { text-align: center; margin-bottom: 30px; }
+.logo .icon { font-size: 4rem; margin-bottom: 8px; }
+.logo h1    { font-size: 1.8rem; font-weight: 700; letter-spacing: 2px; }
+.logo p     { color: #546e7a; font-size: 0.95rem; }
+
+/* ── CARD ── */
+.main-card {
+  background: #0d1b2a;
+  border: 2px solid #1565c0;
+  border-radius: 20px;
+  padding: 36px;
+  width: 100%;
+  max-width: 460px;
+  box-shadow: 0 20px 60px rgba(21,101,192,0.2);
+  text-align: center;
+}
+.main-card h2 {
+  font-size: 1.2rem;
+  color: #64b5f6;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+
+/* ── BOTÓN SACAR TURNO ── */
+.btn-take {
+  width: 100%;
+  padding: 20px;
+  background: linear-gradient(135deg, #1565c0, #0d47a1);
+  border: none;
+  border-radius: 14px;
+  color: #fff;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 2px;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 25px rgba(21,101,192,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.btn-take:hover  { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(21,101,192,0.7); }
+.btn-take:active { transform: translateY(0); }
+
+/* ── RESULTADO TICKET ── */
+.ticket-result {
+  display: none;
+  background: linear-gradient(135deg, #0a1628, #112240);
+  border: 2px solid #42a5f5;
+  border-radius: 16px;
+  padding: 30px;
+  margin-top: 20px;
+  position: relative;
+  overflow: hidden;
+}
+.ticket-result::before,
+.ticket-result::after {
+  content: '';
+  position: absolute;
+  width: 30px; height: 30px;
+  background: #050a12;
+  border-radius: 50%;
+  top: 50%; transform: translateY(-50%);
+}
+.ticket-result::before { left: -15px; }
+.ticket-result::after  { right: -15px; }
+
+.ticket-result .tr-label { font-size: 0.9rem; color: #64b5f6; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 8px; }
+.ticket-result .tr-num {
+  font-family: 'Orbitron', monospace;
+  font-size: 5rem;
+  font-weight: 900;
+  color: #42a5f5;
+  text-shadow: 0 0 30px rgba(66,165,245,0.6);
+  line-height: 1;
+  animation: pop 0.5s ease;
+}
+@keyframes pop {
+  0%  { transform: scale(0); opacity: 0; }
+  70% { transform: scale(1.15); }
+  100%{ transform: scale(1);    opacity: 1; }
+}
+.ticket-result .tr-dashed { border-top: 2px dashed #1565c0; margin: 16px 0; }
+.ticket-result .tr-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.tr-info-item { font-size: 0.85rem; }
+.tr-info-item .lbl { color: #546e7a; }
+.tr-info-item .val { color: #e0e0e0; font-weight: 600; }
+
+/* ── ESTADO COLA ── */
+.queue-status {
+  margin-top: 20px;
+  background: #080f1a;
+  border: 1px solid #1e3a5f;
+  border-radius: 12px;
+  padding: 16px;
+}
+.queue-status h3 { font-size: 0.9rem; color: #64b5f6; letter-spacing: 2px; margin-bottom: 12px; }
+.qs-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid #0d1b2a;
+  font-size: 0.9rem;
+}
+.qs-row:last-child { border-bottom: none; }
+.qs-num { font-family: 'Orbitron', monospace; font-size: 1.2rem; color: #42a5f5; }
+.qs-lbl { color: #546e7a; }
+
+.now-serving {
+  background: linear-gradient(135deg, #1b5e20, #2e7d32);
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.now-serving .ns-lbl { color: #a5d6a7; font-size: 0.8rem; }
+.now-serving .ns-num { font-family: 'Orbitron', monospace; font-size: 1.4rem; color: #fff; font-weight: 700; }

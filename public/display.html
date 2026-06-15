@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Display – Farmacia Turnos</title>
+  <link rel="stylesheet" href="css/display.css" />
+</head>
+<body>
+
+<div class="flash-overlay" id="flashOverlay"></div>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">💊</div>
+    <div class="logo-text">
+      <h1>FARMACIA CENTRAL</h1>
+      <p>Sistema de Atención por Turnos</p>
+    </div>
+  </div>
+  <div id="clock">--:--:--</div>
+</header>
+
+<main>
+  <section class="current-panel">
+    <p class="now-label">⚡ Turno en atención</p>
+    <div id="ticketDisplay" class="ticket-number">---</div>
+    <div id="counterDisplay" class="counter-label">
+      Aguarde en <span id="counterName">...</span>
+    </div>
+    <div id="idleMsg" class="idle-msg" style="display:none">
+      🔔 Esperando llamado...
+    </div>
+  </section>
+
+  <aside class="queue-panel">
+    <div class="queue-header">📋 Cola de espera</div>
+    <div class="queue-list" id="queueList">
+      <div class="queue-empty">Sin turnos en espera</div>
+    </div>
+  </aside>
+</main>
+
+<footer>
+  <div class="stat-item">
+    <span class="stat-icon">📅</span>
+    <span class="stat-lbl">Atendidos hoy:</span>
+    <span class="stat-val" id="todayCount">0</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-icon">⏳</span>
+    <span class="stat-lbl">En cola:</span>
+    <span id="queueCount" class="stat-val">0</span>
+    <span class="waiting-badge" id="waitingBadge" style="display:none">EN ESPERA</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-icon">📊</span>
+    <span class="stat-lbl">Llamados totales:</span>
+    <span class="stat-val" id="historyCount">0</span>
+  </div>
+</footer>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="js/display.js"></script>
+</body>
+</html>
